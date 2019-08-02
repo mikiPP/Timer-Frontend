@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="shortcut icon" href="images/logo.png" />
+    <title>Timer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Styles -->
+    <link rel="stylesheet" type="text/css" media="screen" href="style/style.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <!-- Font Awesome! -->
+    <script src="https://kit.fontawesome.com/92f90cb6ae.js"></script>
+
+
+    <!-- Imported Scripts  -->
+
+    <!-- Jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+
+    <!-- Moments -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/locale/es.js"></script>
+
+</head>
+
+<body>
+
+    <!-- Navbar -->
+
+    <div class="container">
+        <header class="encabezado">
+            <nav class="navbar navbar-expand-lg navbar-light navbar-fixed-top">
+                <div class="container">
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-user-cog"></i>
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                            <a class="dropdown-item" id="logout"> Cerrar sesión <i class="fas fa-power-off"></i></a>
+                            <a class="dropdown-item" id="editUser" href="editUser.html">Editar usuario <i class="fas fa-user-edit"></i></a>
+                        </div>
+                    </div>
+                    <div class="text-center mx-1">
+                        <h1 class="font-weight-bold " id="navText">Timer</h1>
+                    </div>
+                    <div class="float-left">
+                        <a class="navbar-brand" href="timer.html"><img src="images/logo.png" width="50" height="50" class="d-inline-block align-top" alt="" /></a>
+                    </div>
+                </div>
+            </nav>
+        </header>
+    </div>
+
+    <!-- Buttons "Añadir tarea && Importar tarea" -->
+
+    <section class="body">
+        <div class="container">
+            <div class="row">
+                <div class="container">
+                    <div class="col-xl-12 col-12 buttons-atTop">
+                        <button class="btn btn-outline-danger float-left " data-toggle="modal" data-target="#createTask"> Añadir tarea <i class="far fa-clock"></i></button>
+                        <button class="btn btn-outline-info float-right" id="importButton"> Importar tareas <i class="fas fa-download"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Select unit of time -->
+
+            <p>Seleccione la unidad de tiempo que desee:</p>
+            <div class="row">
+
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
+                    <button class="col-xl-3 time btn btn-outline-info">Horas</button>
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
+                    <button class="col-xl-3 time btn btn-outline-info">Minutos</button>
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
+                    <button class="col-xl-3 time btn btn-outline-info">Segundos</button>
+                </div>
+                <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
+                    <button class="col-xl-3 time btn btn-outline-info active">Milisegundos</button>
+                </div>
+
+            </div>
+
+            <!-- Accordion -->
+
+            <div id="accordion" role="tablist">
+            </div>
+        </div>
+    </section>
+
+    <!-- Create Task modal  -->
+
+    <div class="modal fade" id="createTask" tabindex="-1" role="dialog" aria-labelledby="createTaskLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header encabezado">
+                    <h4 class="modal-title" id="createTaskLabel">Crear tarea</h4>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <fieldset>
+                            <div>
+                                <label for="taskName"> Nombre de la tarea: </label>
+                                <input id="taskName" name="taskName" title="Por favor,nombre a su tarea" autofocus>
+                            </div>
+                            <div>
+                                <label for="taskDescription">Descripción de la tarea: </label>
+                                <textarea id="taskDescription" name="taskDescription" title="Por favor,introduzca una descripción a su tarea" rows="2" cols="22"></textarea>
+                            </div>
+                            <button id="createButton" type="button" class="btn btn-info" data-dismiss="modal" aria-label="Close">Guardar tarea <i class="far fa-save"></i></button>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit task modal  -->
+
+    <div class="modal fade" id="editTask" tabindex="-1" role="dialog" aria-labelledby="editTaskLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header encabezado">
+                    <h4 class="modal-title" id="editTaskLabel">Editar tarea</h4>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <fieldset>
+                            <div>
+                                <label for="newTaskName">Nuevo nombre de la tarea: </label>
+                                <input id="newTaskName" name="newTaskName" title="Por favor,nombre a su tarea" autofocus>
+                            </div>
+                            <div>
+                                <label for="newTaskDescription">Nueva descripción de la tarea: </label>
+                                <textarea id="newTaskDescription" name="newTaskDescription" title="Por favor,introduzca una descripción a su tarea" rows="2" cols="22"></textarea>
+                            </div>
+                            <button id="editButton" type="button" class="btn btn-info" data-dismiss="modal" aria-label="Close">Guardar tarea editada <i class="far fa-save"></i></button>
+                        </fieldset>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Bootstrap imports -->
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <!-- My Scripts -->
+    <script>
+        /* Global variables
+         */
+
+        var taskOnMarch = {
+            taskId: -1,
+            status: false
+        };
+        moment.updateLocale('es')
+        var taskId = 1;
+        var taskArray = [];
+        var tasksWithCard = [];
+        var timeIn = "miliseconds"
+
+
+
+        /* Functions for interacting with DOM
+         */
+
+        $(document).ready(function() {
+
+            /*
+             *   Function to get the user back
+             */
+
+
+
+            $("#logout").on("click", function() {
+                localStorage.removeItem('token')
+                window.location.href = 'index.html'
+            });
+
+
+
+
+            /*  This funcion get triggered when user click "Añadir Tarea" and sumbit the form,then if the data is valid, we create
+                a card  with the data submitted in the modal's form.
+                */
+
+            $("#createButton").on("click", function() {
+
+                if (checkTask($("#taskName").val(), $("#taskDescription").val())) {
+                    taskArray.push(createTask($("#taskName").val(), $("#taskDescription").val()));
+                    updateCards();
+                    createCards();
+
+                } else {
+                    alert("Por favor, introduzca un nombre y su respectiva descripción para la tarea");
+                }
+
+            });
+
+
+            $("#importButton").on("click", function() {
+
+                /* In this function we simulate that we've got some data from one API,creates one card for each Task Object that we've got
+                    but, before that we check that data is valid.Obviously if the data is incorrect this function will alert the user that some data is invalid.
+
+                    **** En este caso hay un error puesto que no se como se generan las id si desde la api o desde el front ****
+                 */
+
+                let importedTaskArray = [];
+
+                importedTaskArray.push({
+                    name: "Patata",
+                    description: "PatataDescription",
+                    start: null,
+                    duration: null
+                });
+                importedTaskArray.push({
+                    name: "Patata2",
+                    description: "PatataDescription",
+                    start: null,
+                    duration: null
+                });
+
+
+                importedTaskArray.forEach(task => {
+
+                    if (checkTask(task.name, task.description)) {
+                        taskArray.push(createTask(task.name, task.description));
+                        updateCards();
+                        createCards();
+
+                    } else {
+                        alert("Por favor, introduzca un nombre y su respectiva descripción para la tarea");
+                    }
+                });
+
+            });
+
+            /* this function is the one that set the unit of time that the user wants,whenever that user click the button,
+            the switch checks button's value and set that unit of time
+            */
+
+            $(".time").on("click", function() {
+                $(".active").removeClass("active");
+                $(this).addClass("active");
+
+                switch ($(this).text()) {
+
+                    case "Horas":
+                        timeIn = "hours"
+                        break;
+
+                    case "Minutos":
+                        timeIn = "minutes"
+                        break;
+
+                    case "Segundos":
+                        timeIn = "seconds"
+                        break;
+
+                    case "Milisegundos":
+                        timeIn = "miliseconds"
+                        break;
+
+                    default:
+                        //something went wrong
+                        alert("Alguien ha desenchufado el cable que no toca")
+                }
+            });
+        });
+
+
+
+
+        let deleteCard = function(id) {
+            /* This function is about when user click the card's delete button the card is deleted from the DOM and from the taskArray */
+
+            $(`#${id}`).remove();
+            taskArray = taskArray.filter(task => task.id !== id)
+        }
+
+        let editCard = function(id) {
+            /* This function is about when user click the card's edit button,a modal is openned with the form,when the form is finished it call this function */
+            taskArray.filter(task => {
+
+                if (task.id === id) {
+
+                    task.name = $("#newTaskName").val();
+                    task.description = $("#newTaskDescription").val();
+                    $("#button" + id + "").text(task.name);
+                    $("#span" + id + "").text(task.description);
+
+
+                } else {
+                    //nothing
+                }
+            });
+        }
+
+        let openEditModal = function(id) {
+            /* When the edit modal is clicked then edit card is executed */
+
+            $("#editButton").on("click", function() {
+                editCard(id);
+
+            })
+        }
+
+        let createTask = function(name, description) {
+            /*"Factory Pattern " Each time that this function gets executed return a new Task object*/
+
+            return new Task(name, description);
+        }
+
+
+        let checkTask = function(name, description) {
+            /* This function is the one that his job is to prove that card values are valid */
+
+            let isValid = !((name === null || name === '') || (description === null || description === ''));
+
+            taskArray.forEach(task => {
+                if (task.name === name) {
+                    isValid = false;
+                }
+            })
+
+            return isValid;
+        }
+
+        let updateCards = function() {
+            /* this function add all the cards of the DOM to taskWithCard Array*/
+
+            let cards = document.querySelectorAll(".taskCard");
+            cards.forEach(card => {
+                tasksWithCard.push(card.id);
+            });
+        }
+
+        let createCards = function() {
+            /* In this case, we check if the card is not in the taskWithCard Array if it is not, it creates the card and push it */
+
+            taskArray.forEach(task => {
+                if (tasksWithCard.indexOf(task.id) === -1) {
+                    createCard(task);
+                    tasksWithCard.push(task.id);
+                }
+            })
+
+        }
+
+        let createCard = function(task) {
+            /* Each time that this function get executed, it create one card in the DOM as a component of the accordion */
+
+            $("#accordion").append('<div class="taskCard" id="' + task.id + '"><div>');
+
+            $('#' + task.id + '').append('<div class="card-header" role="tab" id="heading' + task.id + '">' +
+                '<button type="button" onClick="deleteCard(' + task.id + ')" title="Eliminar tarea"  class="btn btn-danger button-delete"><i class="fas fa-times"></i></button></div>').addClass("card")
+
+            $('#heading' + task.id + '').append('<button id="button' + task.id + '" aria-expanded="true">' + task.name + '</button> ' +
+                '<button  type="button" title="Empezar a cronometrar" onClick="playButton(' + task.id + ')" class="btn btn-info float-right buttonStart"><i id="buttonStart' + task.id + '" class="far fa-play-circle"></i></button></div></div>');
+
+            $('#button' + task.id + '').addClass("btn btn-outline-danger button-task").attr("data-toggle", "collapse").attr("data-target", "#collapse" + task.id + "").attr("aria-expanded", "false").attr("aria-controls", "collapse" + task.id + "");
+
+            $('#' + task.id + '').append('<div id="collapse' + task.id + '" class="collapse show" role="tabpanel" aria-labelledby="heading' + task.id + '" > </div>')
+
+            $('#collapse' + task.id + '').append(' <div class="card-body"><span class=cardSpan id="span' + task.id + '">' + task.description + '</span></button>' +
+                '<span id="chronometer' + task.id + '"> 00:00:00 </span> <div class="buttons">' +
+                '<button  onClick="" class="btn btn-info float-right buttonExport">Exportar Tarea <i class="fas fa-upload"></i>' +
+                '<button data-toggle="modal" data-target="#editTask" onClick="openEditModal(' + task.id + ')" title="Editar tarea" class="btn btn-info button-edit"><i class="fas fa-edit"></i></button>')
+            taskId++;
+
+
+            if (task.id % 2 === 1) {
+                $('#' + task.id + '').addClass("odd")
+            }
+
+        }
+
+
+        /* Functions to calculate task time.Ordered by work flux
+         */
+
+        let playButton = function(id) {
+            proxy(getTask(id));
+        }
+
+
+
+        let proxy = function(task) {
+            /*Orquestra the  work flux
+             */
+
+            checkTaskOnMarch(task)
+
+
+        }
+
+        let checkTaskOnMarch = function(task) {
+
+            /* This funtion just checks  the state of the task on march if no one is on march,when user click the play button that task will be the first.
+                Then we have 2 scenarios, if the user click the same button, the task on march will turn off again and reset it to the default values.
+                Instead if the user click a diferent play button,the task on march will stop and the task with the button pressed will be the task on march.
+            */
+
+            if (taskOnMarch.status === false) {
+                startTiming(task);
+
+            } else {
+
+                if (taskOnMarch.taskId !== task.id) {
+
+                    getDateDifference(getTask(taskOnMarch.taskId));
+                    stopTiming(getTask(taskOnMarch.taskId));
+                    startTiming(task);
+
+                } else {
+
+                    if ($(`#buttonStart${taskOnMarch.taskId}`).hasClass("fa-pause-circle")) {
+
+                        getDateDifference(task);
+                        stopTiming(task);
+
+                    } else {
+                        //nothing;
+                        // this scenario cannot happend 
+                    }
+
+                }
+            }
+        }
+
+        let startTiming = function(task) {
+            /* Here function updates this values according the input task's values
+             */
+            $(`#buttonStart${task.id}`).toggleClass("fa-play-circle");
+            $(`#buttonStart${task.id}`).toggleClass("fa-pause-circle");
+
+            taskOnMarch.taskId = task.id;
+            taskOnMarch.status = true;
+            task.isMarch = true;
+            task.start = getDate();
+
+            // here starts to chronometer
+
+            task.setTimer();
+        }
+
+        let stopTiming = function(task) {
+            /* If the same task has stopped the timing then we set the taskOnMarch values like default
+             */
+
+            $(`#buttonStart${taskOnMarch.taskId}`).toggleClass("fa-pause-circle");
+            $(`#buttonStart${taskOnMarch.taskId}`).toggleClass("fa-play-circle");
+
+            taskOnMarch.taskId = -1;
+            taskOnMarch.status = false;
+            task.end = getDate();
+            task.isMarch = false;
+            task.clearTimer();
+        }
+
+
+        let getDateDifference = function(task) {
+
+            /* That function gets a task object as a param and calculates date difference from when it started to now in the unit of time that the user wants.
+             *  And save that difference in the task.duration atributte  
+             */
+
+            task.end = getDate();
+            task.duration += getDate().diff(task.start, timeIn);
+
+
+        }
+
+        let getTask = function(id) {
+
+            /* There, if the task is in taskArray returns that task object if not,return null.We will know if the task is the same
+            because we search the id that should be unique and if it match then we return that task.
+            */
+
+            var taskToReturn = null;
+
+            taskArray.forEach(task => {
+
+                if (task.id === id) {
+                    taskToReturn = task;
+                    return;
+
+                } else {
+                    //nothing;
+                }
+            })
+            return taskToReturn;
+        }
+
+        let getDate = function() {
+
+            // The function returns one moment object  
+
+            return moment();
+        }
+
+
+
+
+
+        // Task class  
+
+        class Task {
+
+            constructor(name, description) {
+                this.id = taskId;
+                this.name = name;
+                this.description = description;
+                this.start = null;
+                this.end = null;
+                this.duration = 0;
+                this.chronometer = 0;
+                this.isMarch = false;
+
+            }
+
+            setTimer = function() {
+
+                /* Set timer is the interval that executes another function each second.
+                    The function that get executed each second is a chronometer that every time that function
+                    get executed seconds are incremented by one, if it get the value of 60, minutes are incremented by 
+                    one, and seconds are reseted to 0. And the same with minutes and hours, when minutes hit the value of 60, hours are incremented by one,
+                    and the minute value get reseted to 0. If the input value is greater than 60 then if we've got 3500 seconds then seconds are divided by 60 and we got all the minutes,
+                    to get seconds we do the same, but in this case, we multiply by 60 again and subtract the seconds remainding.In the case of minutes is the same
+                    that seconds but minutes are like seconds and hour like minutes.
+                */
+
+
+
+
+                this.interval = setInterval(() => {
+
+                    this.chronometer = this.duration + getDate().diff(this.start, 'miliseconds')
+
+                    $("#chronometer" + this.id + "").text(` ${moment.utc(moment(this.chronometer)).format("HH:mm:ss")} `)
+                }, 250)
+
+
+            }
+
+
+            leadingZero = function(time) {
+                /* Here just if the parameter value is less or equal to 9 add one 0 to look like 09 instead of 9 */
+
+                if (time <= 9) {
+                    time = '0' + time;
+                }
+                return time;
+            }
+
+
+
+            clearTimer = function() {
+                /* This function resets the timer*/
+
+                clearInterval(this.interval);
+
+            }
+
+            getDuration = function() {
+
+                /* Here the function prove the status of timeIn to convert this unit to seconds so the chronometer can start with this value.
+                 */
+
+                switch (timeIn) {
+                    case "hours":
+                        return Math.floor(this.duration * 3600 * 1000)
+                        break;
+
+                    case "minutes":
+                        return Math.floor(this.duration * 60 * 1000)
+                        break;
+
+                    case "seconds":
+                        return Math.floor(this.duration * 1000);
+                        break;
+
+                    case "miliseconds":
+                        return this.duration;
+                        break;
+
+                    default:
+                        //something went wrong
+                        alert("Alguien ha desenchufado el cable que no toca")
+                }
+            }
+
+
+
+        }
+    </script>
+
+    <script>
+        /*
+         *This function is for popup the tooltips 
+         */
+
+        $(function() {
+            var tooltips = $("[title]").tooltip({
+                position: {
+                    my: "left top",
+                    at: "right+5 top-5",
+                    collision: "none"
+                }
+            });
+
+            $(".button-delete").hover(function() {
+                $('[data-toggle="tooltip"]').tooltip();
+            });
+
+        });
+    </script>
+</body>
+
+</html>

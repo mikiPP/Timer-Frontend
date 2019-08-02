@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="shortcut icon" href="images/logo.png" />
+    <title>Timer user configuration </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Font Awesome! -->
+    <script src="https://kit.fontawesome.com/92f90cb6ae.js"></script>
+
+
+    <!-- Styles -->
+    <link rel="stylesheet" type="text/css" media="screen" href="style/style.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="style/auth.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+
+    <!-- Jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+
+</head>
+
+<!-- Navbar  -->
+
+<body>
+    <div class="container">
+        <header class="encabezado">
+            <nav class="navbar navbar-expand-lg navbar-light navbar-fixed-top">
+                <div class="container">
+                    <div class="float-left">
+                        <a class="navbar-brand" href="timer.html"><img src="images/logo.png" width="50" height="50" class="d-inline-block align-top" alt="" /></a>
+                    </div>
+                    <div class="text-center">
+                        <h1 class="font-weight-bold " id="navText">Timer</h1>
+                    </div>
+                </div>
+            </nav>
+        </header>
+    </div>
+
+    <!-- Body -->
+
+    <section class="body">
+        <div class="container">
+            <div class="row formDecorator">
+                <div class="container">
+
+                    <!-- form -->
+
+                    <fieldset class="col-md-6 text-center">
+                        <form method="post">
+
+                            <div class="form-group">
+                                <label for="inputOldUsername" class="float-left formLabel">Nombre de Usuario Actual: </label>
+                                <input type="text" class="form-control" id="inputOldUsername" placeholder="Introduzca su usuario" autofocus>
+                            </div>
+
+
+                            <div class="form-group">
+                                <label for="inputOldPassword" class="float-left mt-2">Contraseña:</label>
+                                <input type="password" class="form-control" id="inputOldPassword" placeholder="Introduzca su contraseña">
+                            </div>
+
+
+                            <div class="form-group">
+                                <label for="inputNewUsername" class="float-left formLabel">Nuevo nombre de Usuario: </label>
+                                <input type="text" class="form-control" id="inputNewUsername" aria-describedby="usernameHelp" placeholder="Introduzca su nuevo nombre de usuario" autofocus>
+                                <small id="usernameHelp" class="form-text text-muted float-left my-2" style="width: 100%"> Es este un nombre de usuario válido? <i id="validUsername" class="fas fa-times redCross"></i></small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="inputNewPassword" class="float-left mt-2"> Nueva Contraseña:</label>
+                                <input type="password" class="form-control" id="inputNewPassword" placeholder="Introduzca su nueva contraseña">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="inputNewPasswordSecurity" class="float-left mt-2">Repita su nueva contraseña:</label>
+                                <input type="password" class="form-control" id="inputNewPasswordSecurity" aria-describedby="inputNewPasswordSecurityHelp" placeholder="Repita su contraseña">
+                                <small id="inputNewPasswordSecurityHelp" class="form-text text-muted float-left mt-2" style="width: 100%"> Coinciden las contraseñas? <i id="passwordSecurity" class="fas fa-times redCross"></i></small>
+                            </div>
+
+                            <button type="button" id="editUserButton" class="btn btn-info mt-2" disabled="true">Actualizar usuario!</button>
+
+                            <button type="button" id="deleteUserButton" class="btn btn-danger mt-2"> Eliminar Usuario </button>
+
+                        </form>
+                    </fieldset>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal that pops up when any request has failed  -->
+
+    <div class="modal fade" id="modalError" tabindex="-1" role="dialog" aria-labelledby="errorLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header encabezado">
+                    <h4 class="modal-title" id="errorLabel">Error</h4>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close">
+                            <i class="fas fa-times"></i>
+                        </button>
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        <div class="row">
+                            <p class="" style="width: 100%;">El usuario o la contraseña son incorrectos</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal that pops up when button "eliminar usuario" gets pressed  -->
+
+    <div class="modal fade" id="deleteUserModal" tabindex="-1" role="dialog" aria-labelledby="DeleteUserModalHeader" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header encabezado">
+                    <h4 class="modal-title" id="DeleteUserModalHeader"> Confirmación </h4>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close">
+                                <i class="fas fa-times"></i>
+                            </button>
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        <div class="row">
+
+                            <!-- form -->
+
+                            <form method="post">
+
+                                <div class="form-group">
+                                    <label for="deleteUserUsername" class="float-left formLabel">Nombre de Usuario Actual: </label>
+                                    <input type="text" class="form-control" id="deleteUserUsername" placeholder="Introduzca su usuario" autofocus required>
+                                </div>
+
+
+                                <div class="form-group">
+                                    <label for="deleteUserPassword" class="float-left mt-2">Contraseña:</label>
+                                    <input type="password" class="form-control" id="deleteUserPassword" placeholder="Introduzca su contraseña" required>
+                                </div>
+
+                            </form>
+
+                            <p class="" style="width: 100%;"> Esta seguro de que quiere borrar su usuario?</p>
+
+                            <button type="button" id="deleteUserConfirm" class="btn btn-danger mt-2"> Eliminar Usuario </button>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <script>
+        $(document).ready(function() {
+
+            /*
+             *       Jquery
+             */
+
+
+            //On click functions
+
+            $("#editUserButton").on("click", function() {
+                updateCall()
+            });
+
+            $("#deleteUserConfirm").on("click", function() {
+                deleteCall();
+            });
+
+            $("#deleteUserButton").on("click", function() {
+                $("#deleteUserModal").modal("show");
+            });
+
+            // This functions are for clean the red border when any request failed
+
+            $("#inputNewUsername").on("click", function() {
+                $("#inputNewUsername").removeClass("fail");
+            });
+
+
+            $("#inputNewPassword").on("click", function() {
+                $("#inputNewPassword").removeClass("fail");
+            });
+
+            $("input").on("click", function() {
+                $("input").removeClass("fail");
+            });
+
+            // This functions simulates the click button when the user hits the enter key
+
+            $("#inputNewUsername").on("keyup", function(event) {
+
+                // If the user hits the enter key will do the updaterequest if not,will check if the username already exists
+
+                (event.keyCode == 13) ? updateCall(): checkUsername();
+            });
+
+            $("#inputNewPassword").on("keyup", function(event) {
+
+                // If the user hits the enter key will do the updaterequest if not,will check if the passwords match
+
+                (event.keyCode == 13) ? updateCall(): checkPasswords($("#inputNewPasswordSecurity").val(), $("#inputNewPassword").val());
+
+            });
+
+            $("#inputNewPasswordSecurity").on("keyup", function(event) {
+
+                // If the user hits the enter key will do the updaterequest if not,will check if the passwords match
+
+                (event.keyCode == 13) ? updateCall(): checkPasswords($("#inputNewPasswordSecurity").val(), $("#inputNewPassword").val());
+            });
+
+
+            $("#deleteUserPassword").on("keyup", function(event) {
+
+                if (event.keyCode == 13) deleteCall();
+
+            });
+
+
+            /*
+             *   This function disable the right click in the password input
+             */
+
+            $(function() {
+                $("#inputOldPassword").bind("contextmenu", function(e) {
+                    return false;
+                });
+            });
+
+            $(function() {
+                $("#inputNewPassword").bind("contextmenu", function(e) {
+                    return false;
+                });
+            });
+
+            $(function() {
+                $("#inputNewPasswordSecurity").bind("contextmenu", function(e) {
+                    return false;
+                });
+            });
+
+            $(function() {
+                $("#deleteUserPassword").bind("contextmenu", function(e) {
+                    return false;
+                });
+            });
+
+
+            /*
+             *   FUNCTIONS
+             */
+
+            //This function, if the delete request failed will close the delete modal and will popup the error modal,if the delete modal
+            //didn't pop up will simply pop up the modal error 
+            function openModalError() {
+                $("#deleteUserModal").modal("hide");
+                $("#modalError").modal("show");
+            }
+
+            //This function gets back the user token and decode it to get the owner
+            function getUserFromToken(token) {
+                let encondedPayload = token.split(".")[1];
+                let payload = atob(encondedPayload);
+                let subject = JSON.parse(payload).sub;
+                return JSON.parse(subject.split("'").join('"')).username;
+            }
+
+
+            //This function, checks if the passwords are the same, update the edit button and the icon
+            //if the passwords are not the same will update the icon and disable the button
+            function checkPasswords(password1, password2) {
+
+
+                if (password1 === password2) {
+
+                    $("#passwordSecurity").removeClass("fa-times")
+                    $("#passwordSecurity").removeClass("redCross")
+                    $("#passwordSecurity").addClass("fa-check")
+                    $("#editUserButton").prop('disabled', false);
+
+                } else {
+
+                    $("#passwordSecurity").removeClass("fa-check")
+                    $("#passwordSecurity").addClass("fa-times")
+                    $("#passwordSecurity").addClass("redCross")
+                    $("#editUserButton").prop('disabled', true);
+                }
+            }
+
+
+            /*
+             *       Requests
+             */
+
+            function deleteCall() {
+
+                fetch("http://localhost:8080/api/users/delete/" + getUserFromToken(localStorage.getItem('token')) + "/" + $("#deleteUserPassword").val(), {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': localStorage.getItem('token'),
+                        }
+                    })
+                    .then(response => {
+
+                        (response.ok) ? window.location.href = 'index.html': openModalError();
+                    })
+
+                .catch(err => {
+
+                    console.log(err)
+                });
+            }
+
+            function checkUsername() {
+
+                fetch("http://localhost:8080/api/users/username/" + $("#inputNewUsername").val(), {
+                        method: 'GET',
+                    })
+                    .then(response => response.json())
+
+                .then(data => {
+                        if (data) {
+                            $("#validUsername").removeClass("fa-times")
+                            $("#validUsername").removeClass("redCross")
+                            $("#validUsername").addClass("fa-check")
+                            $("#editUserButton").prop('disabled', false);
+
+                        } else {
+                            $("#validUsername").removeClass("fa-check")
+                            $("#validUsername").addClass("fa-times")
+                            $("#validUsername").addClass("redCross")
+                            $("#editUserButton").prop('disabled', true);
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err)
+                    });
+
+            }
+
+
+            function updateCall() {
+
+                fetch("http://localhost:8080/api/users/update", {
+                        method: 'PUT',
+                        body: JSON.stringify({
+                            "oldUsername": getUserFromToken(localStorage.getItem('token')),
+                            "oldPassword": $("#inputOldPassword").val(),
+                            "newUsername": $("#inputNewUsername").val(),
+                            "newPassword": $("#inputNewPassword").val()
+                        }),
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': localStorage.getItem('token'),
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            localStorage.removeItem('token');
+                            window.location.href = 'index.html'
+
+
+                        } else {
+
+                            $("#inputOldUsername").addClass("fail")
+                            $("#inputOldPassword").addClass("fail")
+                            $("#inputNewPassword").addClass("fail")
+                            $("#inputNewUsername").addClass("fail")
+                            $("#inputNewPasswordSecurity").addClass("fail")
+                            $(".formDecorator").addClass("fail")
+                            openModalError();
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err)
+                    });
+            }
+
+        });
+    </script>
+
+</body>
+
+</html>

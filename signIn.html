@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="shortcut icon" href="images/logo.png" />
+    <title>Timer Sign-in</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Font Awesome! -->
+    <script src="https://kit.fontawesome.com/92f90cb6ae.js"></script>
+
+
+    <!-- Styles -->
+    <link rel="stylesheet" type="text/css" media="screen" href="style/style.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="style/auth.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+
+    <!-- Jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+
+</head>
+
+<body>
+
+    <!-- Navbar -->
+
+    <div class="container">
+        <header class="encabezado">
+            <nav class="navbar navbar-expand-lg navbar-light navbar-fixed-top">
+                <div class="container">
+                    <div class="float-left">
+                        <a class="navbar-brand" href="index.html"><img src="images/logo.png" width="50" height="50" class="d-inline-block align-top" alt="" /></a>
+                    </div>
+                    <div class="text-center">
+                        <h1 class="font-weight-bold " id="navText">Timer</h1>
+                    </div>
+                </div>
+            </nav>
+        </header>
+    </div>
+    <section class="body">
+        <div class="container">
+            <div class="row formDecorator">
+
+                <!--  Form -->
+
+                <fieldset class="col-md-6 text-center">
+                    <form method="post">
+                        <div class="form-group">
+                            <label for="inputUsername" class="float-left">Usuario: </label>
+                            <input type="text" class="form-control" id="inputUsername" aria-describedby="usernameHelp" placeholder="Introduzca su usuario" autofocus>
+                            <small id="usernameHelp" class="form-text text-muted float-left" style="width: 100%">This is a valid username <i id="validUsername" class="fas fa-times redCross"></i></small>
+                        </div>
+
+
+                        <div class="form-group">
+                            <label for="inputPassword" class="float-left mt-2">Contraseña:</label>
+                            <input type="password" class="form-control" id="inputPassword" placeholder="Introduzca su contraseña">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="inputPasswordSecurity" class="float-left mt-2">Repita su contraseña:</label>
+                            <input type="password" class="form-control" id="inputPasswordSecurity" aria-describedby="inputPasswordSecurityHelp" placeholder="Repita su contraseña">
+                            <small id="inputPasswordSecurityHelp" class="form-text text-muted float-left mt-2" style="width: 100%">Does the passwords match? <i id="passwordSecurity" class="fas fa-times redCross"></i></small>
+                        </div>
+                        <button type="button" id="submit" class="btn btn-info mt-2" disabled="true">Regístrate!</button>
+                    </form>
+                    <p class="mt-4">Ya tienes cuenta? <a href="index.html">Inicia sesión aquí!</a></p>
+                </fieldset>
+            </div>
+        </div>
+    </section>
+
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <script>
+        $(document).ready(function() {
+
+            /*
+             *       Jquery
+             */
+
+            //On click functions
+
+            $("#submit").on("click", function() {
+                signInCall()
+            });
+
+
+            // This functions are for clean the red border when any request failed
+
+            $("#inputUsername").on("click", function() {
+                $("#inputUsername").removeClass("fail");
+            });
+
+
+            $("#inputPassword").on("click", function() {
+                $("#inputPassword").removeClass("fail");
+            });
+
+            // This functions simulates the click button when the user hits the enter key
+
+            $("#inputUsername").on("keyup", function(event) {
+
+                // If the user hits the enter key will do the signIn request if not,will check if the username already exists
+
+                (event.keyCode == 13) ? signInCall(): checkUsername();
+
+            });
+
+            $("#inputPassword").on("keyup", function(event) {
+
+                // If the user hits the enter key will do the signIn request if not,will check if the passwords match
+
+                (event.keyCode == 13) ? signInCall(): checkPasswords($("#inputPasswordSecurity").val(), $("#inputPassword").val());
+
+            });
+
+            $("#inputPasswordSecurity").on("keyup", function(event) {
+
+                (event.keyCode == 13) ? signInCall(): checkPasswords($("#inputPasswordSecurity").val(), $("#inputPassword").val());
+
+            });
+
+            $("input").on("keydown", function(event) {
+
+                if (event.keyCode == 13) signInCall();
+
+            });
+
+            /*
+             *   This function disable the right click in the password input
+             */
+
+            $(function() {
+                $("#inputPassword").bind("contextmenu", function(e) {
+                    return false;
+                });
+            });
+
+            $(function() {
+                $("#inputPasswordSecurity").bind("contextmenu", function(e) {
+                    return false;
+                });
+            });
+
+
+            /*
+             *   Functions
+             */
+
+            //this function simply pops up the modal Error
+            function openModalError() {
+                $("#modalError").modal("show");
+            }
+
+            //This function, checks if the passwords are the same, update the edit button and the icon
+            //if the passwords are not the same will update the icon and disable the button
+            function checkPasswords(password1, password2) {
+
+                if (password1 === password2) {
+
+                    $("#passwordSecurity").removeClass("fa-times")
+                    $("#passwordSecurity").removeClass("redCross")
+                    $("#passwordSecurity").addClass("fa-check")
+                    $("#submit").prop('disabled', false);
+
+                } else {
+
+                    $("#passwordSecurity").removeClass("fa-check")
+                    $("#passwordSecurity").addClass("fa-times")
+                    $("#passwordSecurity").addClass("redCross")
+                    $("#submit").prop('disabled', true);
+                }
+            }
+
+
+            /*
+             *       Calls
+             */
+
+            function checkUsername() {
+
+                fetch("http://localhost:8080/api/users/username/" + $("#inputUsername").val(), {
+                        method: 'GET',
+                    })
+                    .then(response => response.json())
+
+                .then(data => {
+                        if (data) {
+                            $("#validUsername").removeClass("fa-times")
+                            $("#validUsername").removeClass("redCross")
+                            $("#validUsername").addClass("fa-check")
+                            $("#submit").prop('disabled', false);
+
+                        } else {
+                            $("#validUsername").removeClass("fa-check")
+                            $("#validUsername").addClass("fa-times")
+                            $("#validUsername").addClass("redCross")
+                            $("#submit").prop('disabled', true);
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err)
+                    });
+
+            }
+
+
+            function signInCall() {
+
+
+                fetch("http://localhost:8080/api/users/add", {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            "username": $("#inputUsername").val(),
+                            "password": $("#inputPassword").val()
+                        }),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            window.location.href = 'index.html'
+
+                        } else {
+
+                            $("#inputUsername").addClass("fail")
+                            $("#inputPassword").addClass("fail")
+                            $(".formDecorator").addClass("fail")
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err)
+                    });
+            }
+
+        });
+    </script>
+
+</body>
+
+</html>

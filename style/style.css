@@ -1,0 +1,207 @@
+        /* fuentes */
+        
+        @import url('https://fonts.googleapis.com/css?family=Inconsolata|Lobster+Two&display=swap');
+        @font-face {
+            font-family: 'Lobster Two', cursive;
+            font-family: 'Inconsolata', monospace;
+        }
+        
+        html {
+            font-size: 18px !important;
+            height: 100%;
+        }
+        
+        body {
+            background: #F5F5F5 !important;
+            font-family: 'Inconsolata' !important;
+            height: 100% !important;
+        }
+        
+        .encabezado {
+            background: #D6D6D6;
+        }
+        
+        .text-center {
+            margin: auto;
+        }
+        
+        #navText {
+            font-family: 'Lobster Two', "Times New Roman", "Trebuchet";
+            color: #dc3545;
+        }
+        
+        .body {
+            margin-top: 4%;
+        }
+        
+        .container {
+            padding: 0;
+        }
+        
+        #accordion {
+            margin-top: 12%;
+        }
+        
+        .formLabel {
+            width: 42%;
+        }
+        
+        .card {
+            background: #D6D6D6 !important;
+            border: solid 2px black !important;
+        }
+        
+        .card:hover {
+            box-shadow: 0 0 20px dodgerblue;
+            /* background: #4EE1DB !important;
+            color: white; */
+        }
+        
+        .card-header {
+            border-bottom: solid 2px black !important;
+        }
+        
+        .btn-danger,
+        .btn-info {
+            border: black solid 2px !important;
+            margin-left: 2%;
+        }
+        
+        .buttonStart {
+            float: right;
+        }
+        
+        .button-delete {
+            float: right;
+        }
+        
+        .button-task {
+            float: left;
+        }
+        
+        .odd {
+            background: #F3EBE2 !important;
+        }
+        
+        label {
+            display: inline-block;
+            width: 5em;
+            margin-right: 2%;
+        }
+        
+        fieldset div {
+            margin-bottom: 2em;
+        }
+        
+        fieldset .help {
+            display: inline-block;
+        }
+        
+        .ui-tooltip {
+            width: 210px;
+        }
+        
+        .col-12 {
+            padding: 0 !important;
+        }
+        
+        .card-body {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+        
+        .col-12>.btn {
+            margin-bottom: 4%;
+        }
+        
+        .button-edit {
+            order: 2;
+            margin-left: 4% !important;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .row {
+            margin-top: 2%;
+        }
+        
+        .time {
+            margin-top: 2% !important;
+        }
+        
+        .col-xl-3 {
+            max-width: 100% !important;
+        }
+        
+        @media (max-width: 350px) {
+            .card-header {
+                display: flex;
+                justify-content: space-around;
+                align-content: space-around;
+                flex-wrap: nowrap;
+                flex-direction: row;
+            }
+            .buttonStart {
+                order: 5;
+            }
+            .button-delete {
+                order: 7;
+            }
+            .button-task {
+                order: -2;
+            }
+            .buttons {
+                width: 100% !important;
+                margin-left: 0% !important;
+            }
+            .card-body {
+                display: table;
+            }
+            .button-edit {
+                margin-top: 4%;
+                margin-left: 10px !important;
+            }
+            .buttonExport {
+                margin-top: 4%;
+                margin-left: 0% !important;
+            }
+            .btn-danger,
+            .btn-info {
+                border: black solid 1.5px !important;
+                margin-left: 4px;
+            }
+            .col-12>.btn {
+                width: 100%;
+                margin-bottom: 2%;
+            }
+        }
+        
+        @media (max-width: 426px) {
+            .col-12>.btn {
+                width: 100%;
+                margin-bottom: 2%;
+            }
+            .card-body {
+                display: table;
+            }
+            .buttons {
+                width: 145%;
+            }
+            .button-edit {
+                margin-top: 4%;
+            }
+            .buttonExport {
+                margin-top: 4%;
+                margin-left: 0% !important;
+            }
+        }
+        
+        @media(max-width:380px) {
+            .buttons {
+                width: 125%;
+            }
+        }

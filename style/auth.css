@@ -1,0 +1,25 @@
+.formDecorator {
+    background: white;
+    border: black solid 2px;
+    padding: 1rem 0;
+}
+
+input {
+    border: black solid 2px !important;
+}
+
+button {
+    border: black solid 2px !important;
+}
+
+.fail {
+    border: solid 4px #dc3545 !important;
+}
+
+.fa-check {
+    color: #2DDF05;
+}
+
+.redCross {
+    color: #dc3545 !important;
+}
