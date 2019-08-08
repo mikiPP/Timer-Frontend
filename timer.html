@@ -118,7 +118,7 @@
                                 <label for="taskDescription">Descripción de la tarea: </label>
                                 <textarea id="taskDescription" name="taskDescription" title="Por favor,introduzca una descripción a su tarea" rows="2" cols="22"></textarea>
                             </div>
-                            <button id="createButton" type="button" class="btn btn-info" data-dismiss="modal" aria-label="Close">Guardar tarea <i class="far fa-save"></i></button>
+                            <button id="saveButton" type="button" class="btn btn-info" data-dismiss="modal" aria-label="Close">Guardar tarea <i class="far fa-save"></i></button>
                         </fieldset>
                     </form>
                 </div>
@@ -156,6 +156,27 @@
         </div>
     </div>
 
+    <!-- Modal error  -->
+
+    <div class="modal fade" id="modalError" tabindex="-1" role="dialog" aria-labelledby="errorLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header encabezado">
+                    <h4 class="modal-title" id="errorLabel">Error</h4>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close">
+                            <i class="fas fa-times"></i>
+                        </button>
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        <div class="row">
+                            <p class="" style="width: 100%;"> El nombre de la tarea que desea añadir ya existe, si no lo ves, haz click en importar tareas </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Bootstrap imports -->
 
@@ -168,15 +189,17 @@
         /* Global variables
          */
 
-        var taskOnMarch = {
+        let taskOnMarch = {
             taskId: -1,
             status: false
         };
         moment.updateLocale('es')
-        var taskId = 1;
-        var taskArray = [];
-        var tasksWithCard = [];
-        var timeIn = "miliseconds"
+        let taskId = 1;
+        let taskArray = [];
+        let tasksWithCard = [];
+        let timeIn = "miliseconds"
+
+        let user = null;
 
 
 
@@ -189,7 +212,11 @@
              *   Function to get the user back
              */
 
+            getUser();
 
+            /*
+             *   Function to logout 
+             */
 
             $("#logout").on("click", function() {
                 localStorage.removeItem('token')
@@ -198,17 +225,32 @@
 
 
 
-
             /*  This funcion get triggered when user click "Añadir Tarea" and sumbit the form,then if the data is valid, we create
                 a card  with the data submitted in the modal's form.
-                */
+              */
 
-            $("#createButton").on("click", function() {
+            $("#taskDescription").on("keydown", function(event) {
+                if (event.keyCode == 13) {
+
+                    if (checkTask($("#taskName").val(), $("#taskDescription").val())) {
+
+                        createTaskCall($("#taskName").val(), $("#taskDescription").val());
+                        $("#createTask").modal("hide");
+
+                    } else {
+                        alert("Por favor, introduzca un nombre y su respectiva descripción para la tarea");
+                    }
+                }
+
+            });
+
+
+
+            $("#saveButton").on("click", function() {
 
                 if (checkTask($("#taskName").val(), $("#taskDescription").val())) {
-                    taskArray.push(createTask($("#taskName").val(), $("#taskDescription").val()));
-                    updateCards();
-                    createCards();
+
+                    createTaskCall($("#taskName").val(), $("#taskDescription").val());
 
                 } else {
                     alert("Por favor, introduzca un nombre y su respectiva descripción para la tarea");
@@ -221,37 +263,9 @@
 
                 /* In this function we simulate that we've got some data from one API,creates one card for each Task Object that we've got
                     but, before that we check that data is valid.Obviously if the data is incorrect this function will alert the user that some data is invalid.
-
-                    **** En este caso hay un error puesto que no se como se generan las id si desde la api o desde el front ****
                  */
 
-                let importedTaskArray = [];
-
-                importedTaskArray.push({
-                    name: "Patata",
-                    description: "PatataDescription",
-                    start: null,
-                    duration: null
-                });
-                importedTaskArray.push({
-                    name: "Patata2",
-                    description: "PatataDescription",
-                    start: null,
-                    duration: null
-                });
-
-
-                importedTaskArray.forEach(task => {
-
-                    if (checkTask(task.name, task.description)) {
-                        taskArray.push(createTask(task.name, task.description));
-                        updateCards();
-                        createCards();
-
-                    } else {
-                        alert("Por favor, introduzca un nombre y su respectiva descripción para la tarea");
-                    }
-                });
+                importTasksCall();
 
             });
 
@@ -288,32 +302,29 @@
             });
         });
 
+        /*
+         *   Here is the function that pops up the modal
+         */
+
+
+        function openModalError() {
+            $("#modalError").modal("show");
+        }
 
 
 
         let deleteCard = function(id) {
-            /* This function is about when user click the card's delete button the card is deleted from the DOM and from the taskArray */
+            /* This function is about when user click the card's delete button the card is deleted from the DOM and from the taskArray  and from database*/
 
-            $(`#${id}`).remove();
-            taskArray = taskArray.filter(task => task.id !== id)
+            deleteTaskCall(id);
         }
 
         let editCard = function(id) {
+
             /* This function is about when user click the card's edit button,a modal is openned with the form,when the form is finished it call this function */
-            taskArray.filter(task => {
 
-                if (task.id === id) {
+            updateTaskCall(id);
 
-                    task.name = $("#newTaskName").val();
-                    task.description = $("#newTaskDescription").val();
-                    $("#button" + id + "").text(task.name);
-                    $("#span" + id + "").text(task.description);
-
-
-                } else {
-                    //nothing
-                }
-            });
         }
 
         let openEditModal = function(id) {
@@ -321,28 +332,74 @@
 
             $("#editButton").on("click", function() {
                 editCard(id);
-
             })
+
+            $("#newTaskDescription").on("keydown", function(event) {
+                if (event.keyCode == 13) {
+                    editCard(id);
+                    $("#editTask").modal("hide");
+                }
+
+
+            });
+
+
         }
+
 
         let createTask = function(name, description) {
             /*"Factory Pattern " Each time that this function gets executed return a new Task object*/
 
-            return new Task(name, description);
+            let task = new Task(name, description);
+            task.timeIn = timeIn
+
+            return task
+        }
+
+
+        let createTaskFullArgs = function(name, description, duration, start, end, time_in, id) {
+            /*"Factory Pattern " Each time that this function gets executed return a new Task object*/
+
+            const task = new Task(name, description);
+
+            task.duration = task.convertMiliSecondsToUnitOfTime(time_in, duration)
+            task.start = start;
+            task.end = end;
+            task.timeIn = time_in
+            task.id = id
+
+            return task;
         }
 
 
         let checkTask = function(name, description) {
+
             /* This function is the one that his job is to prove that card values are valid */
 
-            let isValid = !((name === null || name === '') || (description === null || description === ''));
+            if (!((name === null || name === '') || (description === null || description === '')) === false) {
+
+                return false
+
+            } else {
+                checkTaskIsValid(name);
+                return checkIfNameExists(name);
+            }
+
+        }
+
+
+        function checkIfNameExists(name) {
+
+
+            let isValid = true;
 
             taskArray.forEach(task => {
-                if (task.name === name) {
+                if (task.name == name) {
                     isValid = false;
+                } else {
+                    //nothig
                 }
             })
-
             return isValid;
         }
 
@@ -370,6 +427,7 @@
         let createCard = function(task) {
             /* Each time that this function get executed, it create one card in the DOM as a component of the accordion */
 
+
             $("#accordion").append('<div class="taskCard" id="' + task.id + '"><div>');
 
             $('#' + task.id + '').append('<div class="card-header" role="tab" id="heading' + task.id + '">' +
@@ -383,16 +441,17 @@
             $('#' + task.id + '').append('<div id="collapse' + task.id + '" class="collapse show" role="tabpanel" aria-labelledby="heading' + task.id + '" > </div>')
 
             $('#collapse' + task.id + '').append(' <div class="card-body"><span class=cardSpan id="span' + task.id + '">' + task.description + '</span></button>' +
-                '<span id="chronometer' + task.id + '"> 00:00:00 </span> <div class="buttons">' +
+                '<span id="chronometer' + task.id + '">' + task.getTime() + '</span> <div class="buttons">' +
                 '<button  onClick="" class="btn btn-info float-right buttonExport">Exportar Tarea <i class="fas fa-upload"></i>' +
                 '<button data-toggle="modal" data-target="#editTask" onClick="openEditModal(' + task.id + ')" title="Editar tarea" class="btn btn-info button-edit"><i class="fas fa-edit"></i></button>')
-            taskId++;
 
 
-            if (task.id % 2 === 1) {
+
+            if (taskId % 2 === 1) {
                 $('#' + task.id + '').addClass("odd")
             }
 
+            taskId++;
         }
 
 
@@ -457,7 +516,7 @@
             taskOnMarch.taskId = task.id;
             taskOnMarch.status = true;
             task.isMarch = true;
-            task.start = getDate();
+            task.start = getDate().format();
 
             // here starts to chronometer
 
@@ -473,9 +532,12 @@
 
             taskOnMarch.taskId = -1;
             taskOnMarch.status = false;
-            task.end = getDate();
+            task.end = getDate().format();
             task.isMarch = false;
             task.clearTimer();
+
+            updateTimeCall(task)
+
         }
 
 
@@ -485,9 +547,8 @@
              *  And save that difference in the task.duration atributte  
              */
 
-            task.end = getDate();
-            task.duration += getDate().diff(task.start, timeIn);
-
+            task.end = getDate().format();
+            task.duration += getDate().diff(task.start, task.timeIn);
 
         }
 
@@ -520,10 +581,28 @@
         }
 
 
+        //This function gets back the user token and decode it to get the owner
+        function getUserFromToken(token) {
+            let encondedPayload = token.split(".")[1];
+            let payload = atob(encondedPayload);
+            let subject = JSON.parse(payload).sub;
+            return JSON.parse(subject.split("'").join('"')).username;
+        }
 
+        formatMs = function(ms) {
 
+            return ` ${moment.utc(moment(ms)).format("HH:mm:ss")} `
+        }
 
-        // Task class  
+        leadingZero = function(time) {
+                /* Here just if the parameter value is less or equal to 9 add one 0 to look like 09 instead of 9 */
+
+                if (time <= 9) {
+                    time = '0' + time;
+                }
+                return time;
+            }
+            // Task class  
 
         class Task {
 
@@ -536,8 +615,13 @@
                 this.duration = 0;
                 this.chronometer = 0;
                 this.isMarch = false;
+                this.timeIn = "miliseconds";
 
             }
+
+
+
+
 
             setTimer = function() {
 
@@ -551,11 +635,10 @@
                 */
 
 
-
-
                 this.interval = setInterval(() => {
 
-                    this.chronometer = this.duration + getDate().diff(this.start, 'miliseconds')
+
+                    this.chronometer = this.convertToMilliseconds(this.timeIn) + getDate().diff(this.start, 'miliseconds')
 
                     $("#chronometer" + this.id + "").text(` ${moment.utc(moment(this.chronometer)).format("HH:mm:ss")} `)
                 }, 250)
@@ -564,30 +647,14 @@
             }
 
 
-            leadingZero = function(time) {
-                /* Here just if the parameter value is less or equal to 9 add one 0 to look like 09 instead of 9 */
 
-                if (time <= 9) {
-                    time = '0' + time;
-                }
-                return time;
-            }
+            convertToMilliseconds = function(unitOfTime) {
 
-
-
-            clearTimer = function() {
-                /* This function resets the timer*/
-
-                clearInterval(this.interval);
-
-            }
-
-            getDuration = function() {
-
-                /* Here the function prove the status of timeIn to convert this unit to seconds so the chronometer can start with this value.
+                /* Here the function prove the status of timeIn to convert this unit to miliseconds so the chronometer can start with this value.
                  */
 
-                switch (timeIn) {
+
+                switch (unitOfTime) {
                     case "hours":
                         return Math.floor(this.duration * 3600 * 1000)
                         break;
@@ -611,7 +678,257 @@
             }
 
 
+            convertMiliSecondsToUnitOfTime = function(unitOfTime, duration) {
 
+                /* Here the function prove the status of timeIn to convert this unit to miliseconds so the chronometer can start with this value.
+                 */
+
+
+                switch (unitOfTime) {
+                    case "hours":
+                        return Math.floor(duration / (3600 * 1000))
+                        break;
+
+                    case "minutes":
+                        return Math.floor(duration / (60 * 1000))
+                        break;
+
+                    case "seconds":
+                        return Math.floor(duration / 1000);
+                        break;
+
+                    case "miliseconds":
+                        return duration;
+                        break;
+
+                    default:
+                        //something went wrong
+                        alert("Alguien ha desenchufado el cable que no toca")
+                }
+            }
+
+
+
+            clearTimer = function() {
+                /* This function resets the timer*/
+
+                clearInterval(this.interval);
+
+            }
+
+            getTime = function() {
+
+                const durationInMs = this.convertToMilliseconds(this.timeIn)
+                return (durationInMs === 0) ? " 00:00:00 " : formatMs(durationInMs);
+            }
+
+        }
+
+        // Calls
+
+
+
+        function createTaskCall(name, description) {
+
+            fetch("http://localhost:8080/api/tasks/add", {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        "name": name,
+                        "description": description,
+                        "time_in": timeIn,
+                        "user": user
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': localStorage.getItem('token'),
+                    }
+                })
+                .then(response => {
+
+                    if (response.ok) {
+                        taskArray.push(createTask(name, description));
+                        updateCards();
+                        createCards();
+
+
+                    } else {
+                        openModalError();
+                    }
+
+                })
+                .catch(err => {
+                    console.log(err)
+                });
+
+        }
+
+        function deleteTaskCall(id) {
+
+            fetch("http://localhost:8080/api/tasks/name/" + $("#button" + id).text(), {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': localStorage.getItem('token'),
+                    }
+                })
+                .then(response => {
+
+                    if (response.ok) {
+                        $(`#${id}`).remove();
+                        taskArray = taskArray.filter(task => task.id !== id)
+
+                    } else {
+                        openModalError();
+                    }
+
+                })
+                .catch(err => {
+                    console.log(err)
+                });
+
+        }
+
+
+        function getUser() {
+            fetch("http://localhost:8080/api/users/get/" + getUserFromToken(localStorage.getItem('token')), {
+                method: 'GET',
+                headers: {
+                    'Authorization': localStorage.getItem('token'),
+                }
+            })
+
+            .then(response => response.json())
+                .then(data => {
+                    user = data;
+                })
+                .catch(err => {
+                    console.log(err)
+                });
+        }
+
+        function checkTaskIsValid(name) {
+
+            fetch("http://localhost:8080/api/tasks/name/" + name + "/user/" + localStorage.getItem('username'), {
+                method: 'GET',
+                headers: {
+                    'Authorization': localStorage.getItem('token'),
+                }
+            })
+
+            .then(response => response.json())
+                .then(data => {
+
+                    if (data) {
+                        return data;
+
+                    } else {
+                        openModalError();
+                    }
+                })
+                .catch(err => {
+                    console.log(err)
+                });
+        }
+
+
+        function updateTimeCall(task) {
+
+            const start = task.start.split("+");
+
+            const end = task.end.split("+");
+
+            fetch("http://localhost:8080/api/tasks/update/time", {
+                method: 'PUT',
+                body: JSON.stringify({
+
+                    "name": task.name,
+                    "description": task.description,
+                    "start_time": start[0],
+                    "end_time": end[0],
+                    "duration": task.convertToMilliseconds(task.timeIn)
+                }),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': localStorage.getItem('token')
+                }
+            })
+
+            .then(response => response.json())
+
+
+            .catch(err => {
+                console.log(err)
+            });
+        }
+
+        function updateTaskCall(id) {
+
+            const taskToEdit = getTask(id);
+
+            fetch("http://localhost:8080/api/tasks/update", {
+                method: 'PUT',
+                body: JSON.stringify({
+
+                    "oldName": taskToEdit.name,
+                    "newName": $("#newTaskName").val(),
+                    "newDescription": $("#newTaskDescription").val(),
+
+                }),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': localStorage.getItem('token')
+                }
+            })
+
+            .then(response => {
+
+                if (response.ok) {
+                    taskArray.filter(task => {
+
+                        if (task.id === id) {
+                            task.name = $("#newTaskName").val();
+                            task.description = $("#newTaskDescription").val();
+                            $("#button" + id + "").text(task.name);
+                            $("#span" + id + "").text(task.description);
+
+                        } else {
+                            //nothing
+                        }
+                    });
+                }
+            })
+
+            .catch(err => {
+                console.log(err)
+            });
+        }
+
+        function importTasksCall() {
+
+            fetch("http://localhost:8080/api/tasks/all/" + user.username, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': localStorage.getItem('token')
+                }
+            })
+
+            .then(response => response.json())
+                .then(data => {
+
+                    data.forEach(task => {
+
+                        if (checkTask(task.name, task.description)) {
+                            taskArray.push(createTaskFullArgs(task.name, task.description, task.duration, task.start_time, task.end_time, task.time_in, taskId));
+                            updateCards();
+                            createCards();
+                        } else {
+                            // the card will not appear
+                        }
+                    })
+                })
+                .catch(err => {
+                    console.log(err)
+                });
         }
     </script>
 
