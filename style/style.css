@@ -1,4 +1,4 @@
-        /* fuentes */
+        /* fonts */
         
         @import url('https://fonts.googleapis.com/css?family=Inconsolata|Lobster+Two&display=swap');
         @font-face {
@@ -17,6 +17,15 @@
             height: 100% !important;
         }
         
+        .row {
+            margin-top: 2%;
+        }
+        
+        .col-xl-3 {
+            max-width: 100% !important;
+        }
+        /* navbar */
+        
         .encabezado {
             background: #D6D6D6;
         }
@@ -30,6 +39,12 @@
             color: #dc3545;
         }
         
+        .listRight {
+            left: auto !important;
+            right: 0 !important;
+        }
+        /* body */
+        
         .body {
             margin-top: 4%;
         }
@@ -37,6 +52,7 @@
         .container {
             padding: 0;
         }
+        /* accordion */
         
         #accordion {
             margin-top: 12%;
@@ -53,18 +69,36 @@
         
         .card:hover {
             box-shadow: 0 0 20px dodgerblue;
-            /* background: #4EE1DB !important;
-            color: white; */
         }
         
         .card-header {
             border-bottom: solid 2px black !important;
         }
         
-        .listRight {
-            left: auto !important;
-            right: 0 !important;
+        .odd {
+            background: #F3EBE2 !important;
         }
+        
+        .col-12 {
+            padding: 0 !important;
+        }
+        
+        .card-body {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+        
+        .col-12>.btn {
+            margin-bottom: 4%;
+        }
+        
+        label {
+            display: inline-block;
+            width: 5em;
+            margin-right: 2%;
+        }
+        /* buttons */
         
         .btn-danger,
         .btn-info {
@@ -84,15 +118,20 @@
             float: left;
         }
         
-        .odd {
-            background: #F3EBE2 !important;
+        .button-edit {
+            order: 2;
+            margin-left: 4% !important;
         }
         
-        label {
-            display: inline-block;
-            width: 5em;
-            margin-right: 2%;
+        .buttons {
+            display: flex;
+            justify-content: flex-end;
         }
+        
+        .time {
+            margin-top: 2% !important;
+        }
+        /* modals */
         
         fieldset div {
             margin-bottom: 2em;
@@ -104,42 +143,6 @@
         
         .ui-tooltip {
             width: 210px;
-        }
-        
-        .col-12 {
-            padding: 0 !important;
-        }
-        
-        .card-body {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-        }
-        
-        .col-12>.btn {
-            margin-bottom: 4%;
-        }
-        
-        .button-edit {
-            order: 2;
-            margin-left: 4% !important;
-        }
-        
-        .buttons {
-            display: flex;
-            justify-content: flex-end;
-        }
-        
-        .row {
-            margin-top: 2%;
-        }
-        
-        .time {
-            margin-top: 2% !important;
-        }
-        
-        .col-xl-3 {
-            max-width: 100% !important;
         }
         
         @media (max-width: 350px) {

@@ -173,7 +173,10 @@
                 <div class="modal-body">
                     <div class="container">
                         <div class="row">
-                            <p class="" style="width: 100%;"> El nombre de la tarea que desea añadir ya existe, si no lo ves, haz click en importar tareas </p>
+                            <p class="" style="width: 100%;"> Ha ocurrido un error,esto puede ser por diversos motivos, como que la tarea que intenta añadir ya existe, o que el servidor no funciona, para la primera opción le recomendamos que pulse el botón de importar tareas, para la
+                                segunda opción puede crear sus tareas en local.
+
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -227,56 +230,9 @@
             });
 
 
-
-            /*  This funcion get triggered when user click "Añadir Tarea" and sumbit the form,then if the data is valid, we create
-                a card  with the data submitted in the modal's form.
-              */
-
-            $("#taskDescription").on("keyup", function(event) {
-                if (event.keyCode == 13) {
-
-                    if (checkTask($("#taskName").val(), $("#taskDescription").val())) {
-
-                        proxy($('input[name=OnlineOrOffline]:checked').val())
-                        $("#createTask").modal("hide");
-
-                    } else {
-                        alert("Por favor, introduzca un nombre y su respectiva descripción para la tarea");
-                    }
-                }
-
-            });
-
-
-
-            $("#saveButton").on("click", function() {
-
-
-                if (checkTask($("#taskName").val(), $("#taskDescription").val())) {
-
-                    proxy($('input[name=OnlineOrOffline]:checked').val())
-
-
-                } else {
-                    alert("Por favor, introduzca un nombre y su respectiva descripción para la tarea");
-                }
-
-            });
-
-
-            $("#importButton").on("click", function() {
-
-                /* In this function we simulate that we've got some data from one API,creates one card for each Task Object that we've got
-                    but, before that we check that data is valid.Obviously if the data is incorrect this function will alert the user that some data is invalid.
-                 */
-
-                importTasksCall();
-
-            });
-
             /* this function is the one that set the unit of time that the user wants,whenever that user click the button,
-            the switch checks button's value and set that unit of time
-            */
+             the switch checks button's value and set that unit of time
+             */
 
             $(".time").on("click", function() {
                 $(".active").removeClass("active");
@@ -307,64 +263,52 @@
             });
         });
 
-        /*
-         *   Here is the function that pops up the modal
-         */
+        //CREATE
 
+        /*  This funcion get triggered when user click "Añadir Tarea" and sumbit the form,then if the data is valid, we create
+            a card  with the data submitted in the modal's form.
+          */
 
-        function openModalError() {
-            $("#modalError").modal("show");
-        }
+        $("#taskDescription").on("keyup", function(event) {
+            if (event.keyCode == 13) {
 
+                if (checkTask($("#taskName").val(), $("#taskDescription").val())) {
 
-
-        let deleteCard = function(id) {
-            /* This function is about when user click the card's delete button the card is deleted from the DOM and from the taskArray  and from database*/
-
-            (getTask(id).isRemote) ? deleteTaskCall(id): deleteCardFromDOM(id);
-        }
-
-        let editCard = function(id) {
-
-            /* This function is about when user click the card's edit button,a modal is openned with the form,when the form is finished it call this function */
-
-            (getTask(id).isRemote) ? updateTaskCall(id): updateCardFromDOM(id);
-
-        }
-
-        let openEditModal = function(id) {
-            /* When the edit modal is clicked then edit card is executed */
-
-            $("#editButton").on("click", function() {
-                editCard(id);
-            })
-
-            $("#newTaskDescription").on("keydown", function(event) {
-                if (event.keyCode == 13) {
-                    editCard(id);
-                    $("#editTask").modal("hide");
-                }
-
-            });
-
-        }
-
-        function updateCardFromDOM(id) {
-
-            taskArray.filter(task => {
-
-                if (task.id === id) {
-                    task.name = $("#newTaskName").val();
-                    task.description = $("#newTaskDescription").val();
-                    $("#button" + id + "").text(task.name);
-                    $("#span" + id + "").text(task.description);
+                    proxy($('input[name=OnlineOrOffline]:checked').val())
+                    $("#createTask").modal("hide");
 
                 } else {
-                    //nothing
+                    alert("Por favor, introduzca un nombre y su respectiva descripción para la tarea");
                 }
-            });
-        }
+            }
 
+        });
+
+
+
+        $("#saveButton").on("click", function() {
+
+
+            if (checkTask($("#taskName").val(), $("#taskDescription").val())) {
+
+                proxy($('input[name=OnlineOrOffline]:checked').val())
+
+
+            } else {
+                alert("Por favor, introduzca un nombre y su respectiva descripción para la tarea");
+            }
+
+        });
+
+        function createLocalCard(name, description, localOrRemote) {
+
+            /*Orquestra the  work flux  to create one task
+             */
+
+            taskArray.push(createTask(name, description, localOrRemote));
+            updateCards();
+            createCards();
+        }
 
         let createTask = function(name, description, remote) {
             /*"Factory Pattern " Each time that this function gets executed return a new Task object*/
@@ -374,68 +318,6 @@
             task.isRemote = (remote === "Remote") ? true : false;
 
             return task
-        }
-
-
-        let createTaskFullArgs = function(name, description, duration, start, end, time_in, id) {
-            /*"Factory Pattern " Each time that this function gets executed return a new Task object*/
-
-            const task = new Task(name, description);
-
-            task.duration = task.convertMiliSecondsToUnitOfTime(time_in, duration)
-            task.start = start;
-            task.end = end;
-            task.timeIn = time_in
-            task.id = id
-            task.isRemote = true;
-
-            return task;
-        }
-
-
-        let checkTask = function(name, description) {
-
-            /* This function is the one that his job is to prove that card values are valid */
-
-            if (!((name === null || name === '') || (description === null || description === '')) === false) {
-
-                return false
-
-            } else {
-                checkTaskIsValid(name);
-                return checkIfNameExists(name);
-            }
-
-        }
-
-
-        function checkIfNameExists(name) {
-
-            let isValid = true;
-
-            taskArray.forEach(task => {
-                if (task.name == name) {
-                    isValid = false;
-                } else {
-                    //nothig
-                }
-            })
-            return isValid;
-        }
-
-        function deleteCardFromDOM(id) {
-            $(`#${id}`).remove();
-            taskArray = taskArray.filter(task => task.id !== id)
-
-        }
-
-        let updateCards = function() {
-            /* this function add all the cards of the DOM to taskWithCard Array*/
-
-            let cards = document.querySelectorAll(".taskCard");
-            cards.forEach(card => {
-                tasksWithCard.push(card.id);
-            });
         }
 
         let createCards = function() {
@@ -481,6 +363,164 @@
         }
 
 
+        let createTaskFullArgs = function(name, description, duration, start, end, time_in, id) {
+            /*"Factory Pattern " Each time that this function gets executed return a new Task object*/
+
+            const task = new Task(name, description);
+
+            task.duration = task.convertMiliSecondsToUnitOfTime(time_in, duration)
+            task.start = start;
+            task.end = end;
+            task.timeIn = time_in
+            task.id = id
+            task.isRemote = true;
+
+            return task;
+        }
+
+        //Other functions related to create like validation or work fluxes
+
+        let proxy = function(localOrRemote) {
+            /*Orquestra the  work flux between if the task is local or remote
+             */
+
+            (localOrRemote === "Local") ? createLocalCard($("#taskName").val(), $("#taskDescription").val(), localOrRemote): createTaskCall($("#taskName").val(), $("#taskDescription").val(), localOrRemote);
+
+        }
+
+        let checkTask = function(name, description) {
+
+            /* This function is the one that his job is to prove that card values are valid and not repeated */
+
+            if (!((name === null || name === '') || (description === null || description === '')) === false) {
+
+                return false
+
+            } else {
+                checkTaskIsValid(name);
+                return checkIfNameExists(name);
+            }
+
+        }
+
+
+        function checkIfNameExists(name) {
+
+            //this function checks if the name exists
+
+            let isValid = true;
+
+            taskArray.forEach(task => {
+                if (task.name == name) {
+                    isValid = false;
+                } else {
+                    //nothig
+                }
+            })
+            return isValid;
+        }
+
+
+        $("#importButton").on("click", function() {
+
+            /* In this function we simulate that we've got some data from one API,creates one card for each Task Object that we've got
+                but, before that we check that data is valid.Obviously if the data is incorrect this function will alert the user that some data is invalid.
+             */
+
+            importTasksCall();
+
+        });
+
+
+        /*
+         *   Here is the function that pops up the modal
+         */
+
+
+        function openModalError() {
+            $("#modalError").modal("show");
+        }
+
+        //UPDATE
+
+        let editCard = function(id) {
+
+            /* This function is about when user click the card's edit button,a modal is openned with the form,when the form is finished it call this function */
+
+            (getTask(id).isRemote) ? updateTaskCall(id): updateCardFromDOM(id);
+
+        }
+
+        let openEditModal = function(id) {
+            /* When the edit modal is clicked then edit card is executed */
+
+            $("#editButton").on("click", function() {
+                editCard(id);
+            })
+
+            $("#newTaskDescription").on("keydown", function(event) {
+                if (event.keyCode == 13) {
+                    editCard(id);
+                    $("#editTask").modal("hide");
+                }
+
+            });
+
+        }
+
+        function updateCardFromDOM(id) {
+
+            //When the card is edited then this function updates de values to the DOM
+
+            taskArray.filter(task => {
+
+                if (task.id === id) {
+                    task.name = $("#newTaskName").val();
+                    task.description = $("#newTaskDescription").val();
+                    $("#button" + id + "").text(task.name);
+                    $("#span" + id + "").text(task.description);
+
+                } else {
+                    //nothing
+                }
+            });
+        }
+
+        let updateCards = function() {
+            /* this function add all the cards of the DOM to taskWithCard Array*/
+
+            let cards = document.querySelectorAll(".taskCard");
+            cards.forEach(card => {
+                tasksWithCard.push(card.id);
+            });
+        }
+
+
+
+
+        //DELETE
+
+        let deleteCard = function(id) {
+            /* This function is about when user click the card's delete button the card is deleted from the DOM and from the taskArray  and from database*/
+
+            (getTask(id).isRemote) ? deleteTaskCall(id): deleteCardFromDOM(id);
+        }
+
+
+
+        function deleteCardFromDOM(id) {
+
+            //Remove the card from the DOM and the taskArray
+
+            $(`#${id}`).remove();
+            taskArray = taskArray.filter(task => task.id !== id)
+
+        }
+
+
+        // Chronometer functions
+
+
         /* Functions to calculate task time.Ordered by work flux
          */
 
@@ -489,22 +529,6 @@
         }
 
 
-
-        let proxy = function(localOrRemote) {
-            /*Orquestra the  work flux
-             */
-
-
-            (localOrRemote === "Local") ? createLocalCard($("#taskName").val(), $("#taskDescription").val(), localOrRemote): createTaskCall($("#taskName").val(), $("#taskDescription").val(), localOrRemote);
-
-        }
-
-        function createLocalCard(name, description, localOrRemote) {
-
-            taskArray.push(createTask(name, description, localOrRemote));
-            updateCards();
-            createCards();
-        }
 
         let checkTaskOnMarch = function(task) {
 
@@ -573,6 +597,7 @@
 
         }
 
+        //Gets
 
         let getDateDifference = function(task) {
 
@@ -656,10 +681,6 @@
 
             }
 
-
-
-
-
             setTimer = function() {
 
                 /* Set timer is the interval that executes another function each second.
@@ -680,6 +701,14 @@
                     $("#chronometer" + this.id + "").text(` ${moment.utc(moment(this.chronometer)).format("HH:mm:ss")} `)
                 }, 250)
 
+
+            }
+
+
+            clearTimer = function() {
+                /* This function resets the timer*/
+
+                clearInterval(this.interval);
 
             }
 
@@ -745,16 +774,9 @@
                 }
             }
 
-
-
-            clearTimer = function() {
-                /* This function resets the timer*/
-
-                clearInterval(this.interval);
-
-            }
-
             getTime = function() {
+
+                //This function check if there is any value when the card is created, if there is any value, puts the chronometer at this time,if not it set up to 0
 
                 const durationInMs = this.convertToMilliseconds(this.timeIn)
                 return (durationInMs === 0) ? " 00:00:00 " : formatMs(durationInMs);
@@ -762,9 +784,9 @@
 
         }
 
-        // Calls
+        // Calls 
 
-
+        //Create
 
         function createTaskCall(name, description, remote) {
 
@@ -790,6 +812,7 @@
                     } else {
 
                         (user === null) ? alert("Para crear tareas en remoto debes iniciar sessión"): openModalError();
+
                     }
 
                 })
@@ -799,30 +822,8 @@
 
         }
 
-        function deleteTaskCall(id) {
 
-            fetch("http://localhost:8080/api/tasks/name/" + $("#button" + id).text(), {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': localStorage.getItem('token'),
-                    }
-                })
-                .then(response => {
-
-                    if (response.ok) {
-                        deleteCardFromDOM(id);
-
-                    } else {
-                        openModalError();
-                    }
-
-                })
-                .catch(err => {
-                    console.log(err)
-                });
-
-        }
-
+        // this function gets the user
 
         function getUser() {
             fetch("http://localhost:8080/api/users/get/" + getUserFromToken(localStorage.getItem('token')), {
@@ -842,91 +843,7 @@
                 });
         }
 
-        function checkTaskIsValid(name) {
-
-            fetch("http://localhost:8080/api/tasks/name/" + name + "/user/" + localStorage.getItem('username'), {
-                method: 'GET',
-                headers: {
-                    'Authorization': localStorage.getItem('token'),
-                }
-            })
-
-            .then(response => response.json())
-                .then(data => {
-
-                    if (data) {
-                        return data;
-
-                    } else {
-                        openModalError();
-                    }
-                })
-                .catch(err => {
-                    console.log(err)
-                });
-        }
-
-
-        function updateTimeCall(task) {
-
-            const start = task.start.split("+");
-
-            const end = task.end.split("+");
-
-            fetch("http://localhost:8080/api/tasks/update/time", {
-                method: 'PUT',
-                body: JSON.stringify({
-
-                    "name": task.name,
-                    "description": task.description,
-                    "start_time": start[0],
-                    "end_time": end[0],
-                    "duration": task.convertToMilliseconds(task.timeIn)
-                }),
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': localStorage.getItem('token')
-                }
-            })
-
-            .then(response => response.json())
-
-
-            .catch(err => {
-                console.log(err)
-            });
-        }
-
-        function updateTaskCall(id) {
-
-            const taskToEdit = getTask(id);
-
-            fetch("http://localhost:8080/api/tasks/update", {
-                method: 'PUT',
-                body: JSON.stringify({
-
-                    "oldName": taskToEdit.name,
-                    "newName": $("#newTaskName").val(),
-                    "newDescription": $("#newTaskDescription").val(),
-
-                }),
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': localStorage.getItem('token')
-                }
-            })
-
-            .then(response => {
-
-                if (response.ok) {
-                    updateCardFromDOM(id);
-                }
-            })
-
-            .catch(err => {
-                console.log(err)
-            });
-        }
+        //this function equals a findAll by user username 
 
         function importTasksCall() {
 
@@ -955,6 +872,121 @@
                 .catch(err => {
                     console.log(err)
                 });
+
+            //this call is the one that updates the time into the server
+
+            function updateTimeCall(task) {
+
+                const start = task.start.split("+");
+
+                const end = task.end.split("+");
+
+                fetch("http://localhost:8080/api/tasks/update/time", {
+                    method: 'PUT',
+                    body: JSON.stringify({
+
+                        "name": task.name,
+                        "description": task.description,
+                        "start_time": start[0],
+                        "end_time": end[0],
+                        "duration": task.convertToMilliseconds(task.timeIn)
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': localStorage.getItem('token')
+                    }
+                })
+
+                .then(response => response.json())
+
+
+                .catch(err => {
+                    console.log(err)
+                });
+            }
+
+            //this call is to update task's name or description 
+
+            function updateTaskCall(id) {
+
+                const taskToEdit = getTask(id);
+
+                fetch("http://localhost:8080/api/tasks/update", {
+                    method: 'PUT',
+                    body: JSON.stringify({
+
+                        "oldName": taskToEdit.name,
+                        "newName": $("#newTaskName").val(),
+                        "newDescription": $("#newTaskDescription").val(),
+
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': localStorage.getItem('token')
+                    }
+                })
+
+                .then(response => {
+
+                    (response.ok) ? updateCardFromDOM(id): openModalError();
+
+                })
+
+                .catch(err => {
+                    console.log(err)
+                });
+            }
+
+            function deleteTaskCall(id) {
+
+                fetch("http://localhost:8080/api/tasks/name/" + $("#button" + id).text(), {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': localStorage.getItem('token'),
+                        }
+                    })
+                    .then(response => {
+
+                        if (response.ok) {
+                            deleteCardFromDOM(id);
+
+                        } else {
+                            openModalError();
+                        }
+
+                    })
+                    .catch(err => {
+                        console.log(err)
+                    });
+            }
+
+            //this function asks to the server if there is another task with the same name,if it returns true then means there are not any task with the same name
+            //instead if retunrs false that means that the task already exists
+
+            function checkTaskIsValid(name) {
+
+                fetch("http://localhost:8080/api/tasks/name/" + name + "/user/" + localStorage.getItem('username'), {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': localStorage.getItem('token'),
+                    }
+                })
+
+                .then(response => response.json())
+                    .then(data => {
+
+                        if (data) {
+                            return data;
+
+                        } else {
+                            openModalError();
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err)
+                    });
+            }
+
         }
     </script>
 
