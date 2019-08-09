@@ -36,20 +36,18 @@
         <header class="encabezado">
             <nav class="navbar navbar-expand-lg navbar-light navbar-fixed-top">
                 <div class="container">
-                    <div class="dropdown">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="fas fa-user-cog"></i>
-                        </button>
-                        <div class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                            <a class="dropdown-item" id="logout"> Cerrar sesión <i class="fas fa-power-off"></i></a>
-                            <a class="dropdown-item" id="editUser" href="editUser.html">Editar usuario <i class="fas fa-user-edit"></i></a>
-                        </div>
-                    </div>
+                    <a class="navbar-brand" href="timer.html"><img src="images/logo.png" width="50" height="50" class="d-inline-block align-top" alt="" /></a>
                     <div class="text-center mx-1">
                         <h1 class="font-weight-bold " id="navText">Timer</h1>
                     </div>
-                    <div class="float-left">
-                        <a class="navbar-brand" href="timer.html"><img src="images/logo.png" width="50" height="50" class="d-inline-block align-top" alt="" /></a>
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="fas fa-user-cog"></i>
+                                    </button>
+                        <div class="dropdown-menu listRight" aria-labelledby="dropdownMenu1">
+                            <a class="dropdown-item" id="logout"> Cerrar sesión <i class="fas fa-power-off"></i></a>
+                            <a class="dropdown-item" id="editUser" href="editUser.html">Editar usuario <i class="fas fa-user-edit"></i></a>
+                        </div>
                     </div>
                 </div>
             </nav>
@@ -110,13 +108,18 @@
                 <div class="modal-body">
                     <form>
                         <fieldset>
-                            <div>
+                            <div class="form-group">
                                 <label for="taskName"> Nombre de la tarea: </label>
                                 <input id="taskName" name="taskName" title="Por favor,nombre a su tarea" autofocus>
                             </div>
-                            <div>
+                            <div class="form-group">
                                 <label for="taskDescription">Descripción de la tarea: </label>
                                 <textarea id="taskDescription" name="taskDescription" title="Por favor,introduzca una descripción a su tarea" rows="2" cols="22"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <input type="radio" name="OnlineOrOffline" value="Local"> Local
+                                <input type="radio" name="OnlineOrOffline" value="Remote" checked> Remoto
                             </div>
                             <button id="saveButton" type="button" class="btn btn-info" data-dismiss="modal" aria-label="Close">Guardar tarea <i class="far fa-save"></i></button>
                         </fieldset>
@@ -229,12 +232,12 @@
                 a card  with the data submitted in the modal's form.
               */
 
-            $("#taskDescription").on("keydown", function(event) {
+            $("#taskDescription").on("keyup", function(event) {
                 if (event.keyCode == 13) {
 
                     if (checkTask($("#taskName").val(), $("#taskDescription").val())) {
 
-                        createTaskCall($("#taskName").val(), $("#taskDescription").val());
+                        proxy($('input[name=OnlineOrOffline]:checked').val())
                         $("#createTask").modal("hide");
 
                     } else {
@@ -248,9 +251,11 @@
 
             $("#saveButton").on("click", function() {
 
+
                 if (checkTask($("#taskName").val(), $("#taskDescription").val())) {
 
-                    createTaskCall($("#taskName").val(), $("#taskDescription").val());
+                    proxy($('input[name=OnlineOrOffline]:checked').val())
+
 
                 } else {
                     alert("Por favor, introduzca un nombre y su respectiva descripción para la tarea");
@@ -316,14 +321,14 @@
         let deleteCard = function(id) {
             /* This function is about when user click the card's delete button the card is deleted from the DOM and from the taskArray  and from database*/
 
-            deleteTaskCall(id);
+            (getTask(id).isRemote) ? deleteTaskCall(id): deleteCardFromDOM(id);
         }
 
         let editCard = function(id) {
 
             /* This function is about when user click the card's edit button,a modal is openned with the form,when the form is finished it call this function */
 
-            updateTaskCall(id);
+            (getTask(id).isRemote) ? updateTaskCall(id): updateCardFromDOM(id);
 
         }
 
@@ -340,18 +345,33 @@
                     $("#editTask").modal("hide");
                 }
 
-
             });
-
 
         }
 
+        function updateCardFromDOM(id) {
 
-        let createTask = function(name, description) {
+            taskArray.filter(task => {
+
+                if (task.id === id) {
+                    task.name = $("#newTaskName").val();
+                    task.description = $("#newTaskDescription").val();
+                    $("#button" + id + "").text(task.name);
+                    $("#span" + id + "").text(task.description);
+
+                } else {
+                    //nothing
+                }
+            });
+        }
+
+
+        let createTask = function(name, description, remote) {
             /*"Factory Pattern " Each time that this function gets executed return a new Task object*/
 
             let task = new Task(name, description);
             task.timeIn = timeIn
+            task.isRemote = (remote === "Remote") ? true : false;
 
             return task
         }
@@ -367,6 +387,7 @@
             task.end = end;
             task.timeIn = time_in
             task.id = id
+            task.isRemote = true;
 
             return task;
         }
@@ -390,7 +411,6 @@
 
         function checkIfNameExists(name) {
 
-
             let isValid = true;
 
             taskArray.forEach(task => {
@@ -401,6 +421,12 @@
                 }
             })
             return isValid;
+        }
+
+        function deleteCardFromDOM(id) {
+            $(`#${id}`).remove();
+            taskArray = taskArray.filter(task => task.id !== id)
+
         }
 
         let updateCards = function() {
@@ -459,18 +485,25 @@
          */
 
         let playButton = function(id) {
-            proxy(getTask(id));
+            checkTaskOnMarch(getTask(id));
         }
 
 
 
-        let proxy = function(task) {
+        let proxy = function(localOrRemote) {
             /*Orquestra the  work flux
              */
 
-            checkTaskOnMarch(task)
 
+            (localOrRemote === "Local") ? createLocalCard($("#taskName").val(), $("#taskDescription").val(), localOrRemote): createTaskCall($("#taskName").val(), $("#taskDescription").val(), localOrRemote);
 
+        }
+
+        function createLocalCard(name, description, localOrRemote) {
+
+            taskArray.push(createTask(name, description, localOrRemote));
+            updateCards();
+            createCards();
         }
 
         let checkTaskOnMarch = function(task) {
@@ -536,7 +569,7 @@
             task.isMarch = false;
             task.clearTimer();
 
-            updateTimeCall(task)
+            if (task.isRemote != false) updateTimeCall(task);
 
         }
 
@@ -583,6 +616,9 @@
 
         //This function gets back the user token and decode it to get the owner
         function getUserFromToken(token) {
+
+            if (token == null) return null;
+
             let encondedPayload = token.split(".")[1];
             let payload = atob(encondedPayload);
             let subject = JSON.parse(payload).sub;
@@ -615,6 +651,7 @@
                 this.duration = 0;
                 this.chronometer = 0;
                 this.isMarch = false;
+                this.isRemote = null;
                 this.timeIn = "miliseconds";
 
             }
@@ -678,6 +715,7 @@
             }
 
 
+
             convertMiliSecondsToUnitOfTime = function(unitOfTime, duration) {
 
                 /* Here the function prove the status of timeIn to convert this unit to miliseconds so the chronometer can start with this value.
@@ -728,7 +766,7 @@
 
 
 
-        function createTaskCall(name, description) {
+        function createTaskCall(name, description, remote) {
 
             fetch("http://localhost:8080/api/tasks/add", {
                     method: 'POST',
@@ -746,18 +784,17 @@
                 .then(response => {
 
                     if (response.ok) {
-                        taskArray.push(createTask(name, description));
-                        updateCards();
-                        createCards();
+                        createLocalCard(name, description, remote);
 
 
                     } else {
-                        openModalError();
+
+                        (user === null) ? alert("Para crear tareas en remoto debes iniciar sessión"): openModalError();
                     }
 
                 })
                 .catch(err => {
-                    console.log(err)
+                    console.log(err);
                 });
 
         }
@@ -773,8 +810,7 @@
                 .then(response => {
 
                     if (response.ok) {
-                        $(`#${id}`).remove();
-                        taskArray = taskArray.filter(task => task.id !== id)
+                        deleteCardFromDOM(id);
 
                     } else {
                         openModalError();
@@ -798,7 +834,8 @@
 
             .then(response => response.json())
                 .then(data => {
-                    user = data;
+
+                    if (response.ok) user = data;
                 })
                 .catch(err => {
                     console.log(err)
@@ -882,18 +919,7 @@
             .then(response => {
 
                 if (response.ok) {
-                    taskArray.filter(task => {
-
-                        if (task.id === id) {
-                            task.name = $("#newTaskName").val();
-                            task.description = $("#newTaskDescription").val();
-                            $("#button" + id + "").text(task.name);
-                            $("#span" + id + "").text(task.description);
-
-                        } else {
-                            //nothing
-                        }
-                    });
+                    updateCardFromDOM(id);
                 }
             })
 

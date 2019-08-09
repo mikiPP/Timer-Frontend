@@ -61,6 +61,11 @@
             border-bottom: solid 2px black !important;
         }
         
+        .listRight {
+            left: auto !important;
+            right: 0 !important;
+        }
+        
         .btn-danger,
         .btn-info {
             border: black solid 2px !important;
