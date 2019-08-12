@@ -269,7 +269,9 @@
             a card  with the data submitted in the modal's form.
           */
 
-        $("#taskDescription").on("keyup", function(event) {
+        $("#taskDescription").on("keydown", function(event) {
+
+            console.log("work")
             if (event.keyCode == 13) {
 
                 if (checkTask($("#taskName").val(), $("#taskDescription").val())) {
@@ -822,10 +824,13 @@
 
         }
 
+        //Read
+
 
         // this function gets the user
 
         function getUser() {
+
             fetch("http://localhost:8080/api/users/get/" + getUserFromToken(localStorage.getItem('token')), {
                 method: 'GET',
                 headers: {
@@ -833,14 +838,18 @@
                 }
             })
 
-            .then(response => response.json())
+            .then(response =>
+                    response.json()
+                )
                 .then(data => {
+                    if (data.username === getUserFromToken(localStorage.getItem('token'))) user = data
 
-                    if (response.ok) user = data;
                 })
                 .catch(err => {
                     console.log(err)
                 });
+
+
         }
 
         //this function equals a findAll by user username 
@@ -872,121 +881,126 @@
                 .catch(err => {
                     console.log(err)
                 });
+        }
 
-            //this call is the one that updates the time into the server
+        //Update
+        //this call is the one that updates the time into the server
 
-            function updateTimeCall(task) {
+        function updateTimeCall(task) {
 
-                const start = task.start.split("+");
+            const start = task.start.split("+");
 
-                const end = task.end.split("+");
+            const end = task.end.split("+");
 
-                fetch("http://localhost:8080/api/tasks/update/time", {
-                    method: 'PUT',
-                    body: JSON.stringify({
+            fetch("http://localhost:8080/api/tasks/update/time", {
+                method: 'PUT',
+                body: JSON.stringify({
 
-                        "name": task.name,
-                        "description": task.description,
-                        "start_time": start[0],
-                        "end_time": end[0],
-                        "duration": task.convertToMilliseconds(task.timeIn)
-                    }),
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': localStorage.getItem('token')
-                    }
-                })
+                    "name": task.name,
+                    "description": task.description,
+                    "start_time": start[0],
+                    "end_time": end[0],
+                    "duration": task.convertToMilliseconds(task.timeIn)
+                }),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': localStorage.getItem('token')
+                }
+            })
 
-                .then(response => response.json())
+            .then(response => response.json())
 
 
-                .catch(err => {
-                    console.log(err)
-                });
-            }
+            .catch(err => {
+                console.log(err)
+            });
+        }
 
-            //this call is to update task's name or description 
+        //this call is to update task's name or description 
 
-            function updateTaskCall(id) {
+        function updateTaskCall(id) {
 
-                const taskToEdit = getTask(id);
+            const taskToEdit = getTask(id);
 
-                fetch("http://localhost:8080/api/tasks/update", {
-                    method: 'PUT',
-                    body: JSON.stringify({
+            fetch("http://localhost:8080/api/tasks/update", {
+                method: 'PUT',
+                body: JSON.stringify({
 
-                        "oldName": taskToEdit.name,
-                        "newName": $("#newTaskName").val(),
-                        "newDescription": $("#newTaskDescription").val(),
+                    "oldName": taskToEdit.name,
+                    "newName": $("#newTaskName").val(),
+                    "newDescription": $("#newTaskDescription").val(),
 
-                    }),
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': localStorage.getItem('token')
-                    }
-                })
+                }),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': localStorage.getItem('token')
+                }
+            })
 
-                .then(response => {
+            .then(response => {
 
-                    (response.ok) ? updateCardFromDOM(id): openModalError();
+                (response.ok) ? updateCardFromDOM(id): openModalError();
 
-                })
+            })
 
-                .catch(err => {
-                    console.log(err)
-                });
-            }
+            .catch(err => {
+                console.log(err)
+            });
+        }
 
-            function deleteTaskCall(id) {
+        //Delete
 
-                fetch("http://localhost:8080/api/tasks/name/" + $("#button" + id).text(), {
-                        method: 'DELETE',
-                        headers: {
-                            'Authorization': localStorage.getItem('token'),
-                        }
-                    })
-                    .then(response => {
+        function deleteTaskCall(id) {
 
-                        if (response.ok) {
-                            deleteCardFromDOM(id);
-
-                        } else {
-                            openModalError();
-                        }
-
-                    })
-                    .catch(err => {
-                        console.log(err)
-                    });
-            }
-
-            //this function asks to the server if there is another task with the same name,if it returns true then means there are not any task with the same name
-            //instead if retunrs false that means that the task already exists
-
-            function checkTaskIsValid(name) {
-
-                fetch("http://localhost:8080/api/tasks/name/" + name + "/user/" + localStorage.getItem('username'), {
-                    method: 'GET',
+            fetch("http://localhost:8080/api/tasks/name/" + $("#button" + id).text(), {
+                    method: 'DELETE',
                     headers: {
                         'Authorization': localStorage.getItem('token'),
                     }
                 })
+                .then(response => {
 
-                .then(response => response.json())
-                    .then(data => {
+                    if (response.ok) {
+                        deleteCardFromDOM(id);
 
-                        if (data) {
-                            return data;
+                    } else {
+                        openModalError();
+                    }
 
-                        } else {
-                            openModalError();
-                        }
-                    })
-                    .catch(err => {
-                        console.log(err)
-                    });
-            }
+                })
+                .catch(err => {
+                    console.log(err)
+                });
+        }
 
+        //Others
+
+        //this function asks to the server if there is another task with the same name,if it returns true then means there are not any task with the same name
+        //instead if retunrs false that means that the task already exists
+
+        function checkTaskIsValid(name) {
+
+            fetch("http://localhost:8080/api/tasks/name/" + name + "/user/" + localStorage.getItem('username'), {
+                method: 'GET',
+                headers: {
+                    'Authorization': localStorage.getItem('token'),
+                }
+            })
+
+            .then(response => response.json())
+                .then(data => {
+
+                    if (data) {
+                        return data;
+
+                    } else {
+                        console.log("Here")
+                        openModalError();
+                    }
+                })
+                .catch(err => {
+                    console.log(err)
+                });
         }
     </script>
 
