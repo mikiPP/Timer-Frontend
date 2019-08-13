@@ -60,17 +60,18 @@
                     <!-- form -->
 
                     <fieldset class="col-md-6 text-center">
+                        <p> El usuario y la contraseña actual son obligatorios por motivos de seguridad</p>
                         <form method="post">
 
                             <div class="form-group">
                                 <label for="inputOldUsername" class="float-left formLabel">Nombre de Usuario Actual: </label>
-                                <input type="text" class="form-control" id="inputOldUsername" placeholder="Introduzca su usuario" autofocus>
+                                <input type="text" class="form-control" id="inputOldUsername" placeholder="Introduzca su usuario" autofocus required>
                             </div>
 
 
                             <div class="form-group">
                                 <label for="inputOldPassword" class="float-left mt-2">Contraseña:</label>
-                                <input type="password" class="form-control" id="inputOldPassword" placeholder="Introduzca su contraseña">
+                                <input type="password" class="form-control" id="inputOldPassword" placeholder="Introduzca su contraseña" required>
                             </div>
 
 
@@ -89,6 +90,11 @@
                                 <label for="inputNewPasswordSecurity" class="float-left mt-2">Repita su nueva contraseña:</label>
                                 <input type="password" class="form-control" id="inputNewPasswordSecurity" aria-describedby="inputNewPasswordSecurityHelp" placeholder="Repita su contraseña">
                                 <small id="inputNewPasswordSecurityHelp" class="form-text text-muted float-left mt-2" style="width: 100%"> ¿Coinciden las contraseñas? <i id="passwordSecurity" class="fas fa-times redCross"></i></small>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="inputRedmineKey" class="mt-2 float-left"> Clave de Redmine: </label>
+                                <input type="password" class="form-control" id="inputRedmineKey" aria-describedby="usernameHelp" placeholder="Introduzca su API-KEY de redmine" required>
                             </div>
 
                             <button type="button" id="editUserButton" class="btn btn-info mt-2" disabled="true">¡Actualizar usuario!</button>
@@ -175,9 +181,23 @@
     <script>
         $(document).ready(function() {
 
+
+            //global fields
+
+            let validUsername = true;
+            let validPassowrds = true;
+
+
+
             /*
              *       Jquery
              */
+
+            //Does the logout
+            $("#logout").on("click", function() {
+                localStorage.removeItem('token')
+                window.location.href = 'index.html'
+            });
 
 
             //On click functions
@@ -214,7 +234,6 @@
             $("#inputNewUsername").on("keyup", function(event) {
 
                 // If the user hits the enter key will do the updaterequest if not,will check if the username already exists
-
                 (event.keyCode == 13) ? updateCall(): checkUsername();
             });
 
@@ -222,7 +241,7 @@
 
                 // If the user hits the enter key will do the updaterequest if not,will check if the passwords match
 
-                (event.keyCode == 13) ? updateCall(): checkPasswords($("#inputNewPasswordSecurity").val(), $("#inputNewPassword").val());
+                (event.keyCode == 13) ? updateCall(): checkPasswords($("#inputNewPasswordSecurity").val(), $("#inputNewPassword").val(), $("#inputNewPasswordSecurity").val());
 
             });
 
@@ -300,17 +319,23 @@
                     $("#passwordSecurity").removeClass("fa-times")
                     $("#passwordSecurity").removeClass("redCross")
                     $("#passwordSecurity").addClass("fa-check")
-                    $("#editUserButton").prop('disabled', false);
+                    validPassowrds = true;
+                    checkButton();
 
                 } else {
 
                     $("#passwordSecurity").removeClass("fa-check")
                     $("#passwordSecurity").addClass("fa-times")
                     $("#passwordSecurity").addClass("redCross")
-                    $("#editUserButton").prop('disabled', true);
+                    validPassowrds = false;
+                    checkButton();
                 }
             }
 
+
+            function checkButton() {
+                $("#editUserButton").prop('disabled', validUsername === false || validPassowrds === false);
+            }
 
             /*
              *       Requests
@@ -318,7 +343,7 @@
 
             function deleteCall() {
 
-                fetch("http://localhost:8080/api/users/delete/" + getUserFromToken(localStorage.getItem('token')) + "/" + $("#deleteUserPassword").val(), {
+                fetch("http://localhost:8080/api/users/delete/" + getUserFromToken(localStorage.getItem('token')) + "/" + btoa($("#deleteUserPassword").val()), {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json',
@@ -348,13 +373,15 @@
                             $("#validUsername").removeClass("fa-times")
                             $("#validUsername").removeClass("redCross")
                             $("#validUsername").addClass("fa-check")
-                            $("#editUserButton").prop('disabled', false);
+                            validUsername = true;
+                            checkButton();
 
                         } else {
                             $("#validUsername").removeClass("fa-check")
                             $("#validUsername").addClass("fa-times")
                             $("#validUsername").addClass("redCross")
-                            $("#editUserButton").prop('disabled', true);
+                            validUsername = false;
+                            checkButton();
                         }
                     })
                     .catch(err => {
@@ -370,9 +397,10 @@
                         method: 'PUT',
                         body: JSON.stringify({
                             "oldUsername": getUserFromToken(localStorage.getItem('token')),
-                            "oldPassword": $("#inputOldPassword").val(),
+                            "oldPassword": btoa($("#inputOldPassword").val()),
                             "newUsername": $("#inputNewUsername").val(),
-                            "newPassword": $("#inputNewPassword").val()
+                            "newPassword": btoa($("#inputNewPassword").val()),
+                            "redmineKey": btoa($("#inputRedmineKey").val())
                         }),
                         headers: {
                             'Content-Type': 'application/json',
@@ -392,6 +420,7 @@
                             $("#inputNewPassword").addClass("fail")
                             $("#inputNewUsername").addClass("fail")
                             $("#inputNewPasswordSecurity").addClass("fail")
+                            $("#inputRedmineKey").addClass("fail")
                             $(".formDecorator").addClass("fail")
                             openModalError();
                         }

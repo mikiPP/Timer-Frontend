@@ -23,3 +23,7 @@ button {
 .redCross {
     color: #dc3545 !important;
 }
+
+.fa-info-circle {
+    color: blue !important;
+}

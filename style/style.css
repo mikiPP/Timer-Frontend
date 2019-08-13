@@ -17,8 +17,17 @@
             height: 100% !important;
         }
         
+        label {
+            text-align: initial;
+            width: 70% !important;
+        }
+        
         .row {
-            margin-top: 2%;
+            margin: 2% auto !important;
+        }
+        
+        fieldset {
+            margin: 0 auto !important;
         }
         
         .col-xl-3 {

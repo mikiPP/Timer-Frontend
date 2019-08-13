@@ -57,6 +57,16 @@
                             <small id="usernameHelp" class="form-text text-muted float-left" style="width: 100%"> ¿Es este un nombre de usuario válido?  <i id="validUsername" class="fas fa-times redCross"></i></small>
                         </div>
 
+                        <div class="form-group">
+                            <label for="inputRedmineUser" class="mt-2 float-left"> Usuario de Redmine: </label>
+                            <input type="text" class="form-control" id="inputRedmineUser" aria-describedby="usernameHelp" placeholder="Introduzca su usuario de redmine" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="inputRedmineKey" class="mt-2 float-left"> Clave de Redmine: </label>
+                            <input type="password" class="form-control" id="inputRedmineKey" aria-describedby="usernameHelp" placeholder="Introduzca su API-KEY de redmine" required>
+                            <small id="helpButton" class="form-text text-muted float-left" style="width: 100%"> ¿Necesitas ayuda?  <i class="fas fa-info-circle"></i></small>
+                        </div>
 
                         <div class="form-group">
                             <label for="inputPassword" class="float-left mt-2">Contraseña:</label>
@@ -77,6 +87,30 @@
     </section>
 
 
+    <div class="modal fade" id="modalHelp" tabindex="-1" role="dialog" aria-labelledby="helpLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header encabezado">
+                    <h4 class="modal-title" id="helpLabel">Encontrar la API-KEY</h4>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close">
+                            <i class="fas fa-times"></i>
+                        </button>
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        <div class="row">
+                            <p> Primer,haremos login con nuestras credenciales
+                                <a href="https://redmine.plexus.services" style="text-decoration: none"> Aqui</a>
+                            </p>
+                            <p>Luego, hacemos click en "Mi cuenta" (Se situa en la parte superior derecha)</p>
+                            <p>Nos saldrá un menú como este,hacemos click en mostar y ya nos aparecerá la clave, y la podemos copiar y pegar al formulario</p>
+                            <img src="images/ejemplo.PNG">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
@@ -136,6 +170,8 @@
 
             });
 
+
+
             /*
              *   This function disable the right click in the password input
              */
@@ -156,6 +192,12 @@
             /*
              *   Functions
              */
+
+            //this function simply pops up the modal help
+            $("#helpButton").on("click", function() {
+                $("#modalHelp").modal("show");
+            });
+
 
             //this function simply pops up the modal Error
             function openModalError() {
@@ -188,6 +230,8 @@
              */
 
             function checkUsername() {
+
+                console.log($("#inputUsername").val())
 
                 fetch("http://localhost:8080/api/users/username/" + $("#inputUsername").val(), {
                         method: 'GET',
@@ -222,7 +266,9 @@
                         method: 'POST',
                         body: JSON.stringify({
                             "username": $("#inputUsername").val(),
-                            "password": $("#inputPassword").val()
+                            "password": btoa($("#inputPassword").val()),
+                            "redmineUser": $("#inputRedmineUser").val(),
+                            "redmineKey": btoa($("#inputRedmineKey").val())
                         }),
                         headers: {
                             'Content-Type': 'application/json'
@@ -236,6 +282,8 @@
 
                             $("#inputUsername").addClass("fail")
                             $("#inputPassword").addClass("fail")
+                            $("#inputRedmineUser").addClass("fail")
+                            $("#inputRedmineKey").addClass("fail")
                             $(".formDecorator").addClass("fail")
                         }
                     })

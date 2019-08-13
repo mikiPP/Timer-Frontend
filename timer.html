@@ -271,7 +271,7 @@
 
         $("#taskDescription").on("keydown", function(event) {
 
-            console.log("work")
+
             if (event.keyCode == 13) {
 
                 if (checkTask($("#taskName").val(), $("#taskDescription").val())) {
@@ -652,6 +652,10 @@
             return JSON.parse(subject.split("'").join('"')).username;
         }
 
+        function decodeApiKey(apiKey) {
+            return atob(apiKey);
+        }
+
         formatMs = function(ms) {
 
             return ` ${moment.utc(moment(ms)).format("HH:mm:ss")} `
@@ -843,6 +847,7 @@
                 )
                 .then(data => {
                     if (data.username === getUserFromToken(localStorage.getItem('token'))) user = data
+                    user.redmineKey = decodeApiKey(user.redmineKey)
 
                 })
                 .catch(err => {
